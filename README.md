@@ -182,14 +182,6 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser. 🎉
 
 ---
 
-## 📸 Screenshots
-
-| Home | Dashboard | Analysis |
-|---|---|---|
-| ![Home](images/home.png) | ![Dashboard](images/dashboard.png) | ![Analysis](images/analysis.png) |
-
----
-
 ## 🔮 Future Improvements
 
 - 📹 **Live CCTV Integration** — analyze real-time video feeds instead of static image uploads
