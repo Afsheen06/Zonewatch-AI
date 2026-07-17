@@ -1,29 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import ImageUploader from "@/components/ImageUploader";
-import ResultsPanel, { AnalysisResult } from "@/components/ResultsPanel";
-
-// ── Zone metadata ─────────────────────────────────────────────────────────────
-const ZONE_META: Record<string, { name: string; icon: string; location: string }> = {
-    "gate-a": { name: "Gate A", icon: "🚨", location: "North Entry · Level 1" },
-    "gate-b": { name: "Gate B", icon: "🚪", location: "South Entry · Level 1" },
-    "main-concourse": { name: "Main Concourse", icon: "🏛", location: "Central Hub · Level 2" },
-    "exit-ramp": { name: "Exit Ramp", icon: "⚠️", location: "West Egress · Level 0" },
-    "food-court-north": { name: "Food Court North", icon: "🍔", location: "North Wing · Level 2" },
-    "stairwell-3": { name: "Stairwell 3", icon: "🪜", location: "East Block · L1–4" },
-};
+import ResultsPanel from "@/components/ResultsPanel";
+import type { AnalysisResult } from "@/lib/types";
+import { ZONE_META, BASE64_CHUNK_SIZE } from "@/lib/constants";
 
 // ── Image → base64 helper ─────────────────────────────────────────────────────
+
 /**
  * Converts an image source (blob URL or remote URL) to a raw base64 string
  * (no `data:...;base64,` prefix) and detects the MIME type.
+ *
+ * Two paths:
+ * 1. File object available → use FileReader (fast, no network round-trip).
+ * 2. Remote / sample URL → fetch, read the ArrayBuffer, then encode in chunks
+ *    of BASE64_CHUNK_SIZE bytes to avoid call-stack overflows on large images.
  */
 async function toBase64(
     src: string,
-    file?: File
+    file?: File | null
 ): Promise<{ data: string; mediaType: string }> {
     // Fast path: we have the original File object
     if (file) {
@@ -49,9 +47,8 @@ async function toBase64(
 
     // Encode in chunks to avoid call-stack overflows on large images
     let binary = "";
-    const CHUNK = 8192;
-    for (let i = 0; i < bytes.length; i += CHUNK) {
-        binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+    for (let i = 0; i < bytes.length; i += BASE64_CHUNK_SIZE) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + BASE64_CHUNK_SIZE));
     }
     return { data: btoa(binary), mediaType };
 }
@@ -64,9 +61,16 @@ export default function ZoneDetailPage() {
     const meta = ZONE_META[id] ?? { name: id || "Unknown Zone", icon: "📍", location: "Unknown" };
 
     const [selectedSrc, setSelectedSrc] = useState<string | null>(null);
-    const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<AnalysisResult | null>(null);
+
+    /** Stable callback passed to ImageUploader — avoids re-rendering the uploader on every parent render. */
+    const handleImageSelected = useCallback((src: string, file?: File) => {
+        setSelectedSrc(src);
+        setSelectedFile(file ?? null);
+        setResult(null);
+    }, []);
 
     const handleAnalyze = async () => {
         if (!selectedSrc) return;
@@ -139,13 +143,7 @@ export default function ZoneDetailPage() {
                                 <span style={{ color: "#00a8ff" }}>◈</span> Zone Image Input
                             </div>
 
-                            <ImageUploader
-                                onImageSelected={(src, file) => {
-                                    setSelectedSrc(src);
-                                    setSelectedFile(file);
-                                    setResult(null);
-                                }}
-                            />
+                            <ImageUploader onImageSelected={handleImageSelected} />
 
                             {/* Analyze button */}
                             <button
@@ -187,7 +185,7 @@ export default function ZoneDetailPage() {
                             {[
                                 { label: "Zone ID", value: id },
                                 { label: "Location", value: meta.location },
-                                { label: "AI Model", value: "claude-sonnet-4-5" },
+                                { label: "AI Model", value: "gemini-flash-latest" },
                                 { label: "Analysis Mode", value: "Vision → Ops Brief (2 calls)" },
                                 { label: "Status", value: "🟢 Ready" },
                             ].map(({ label, value }) => (

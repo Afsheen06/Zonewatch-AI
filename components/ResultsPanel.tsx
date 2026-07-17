@@ -1,24 +1,12 @@
 "use client";
 
+import { memo } from "react";
 import { riskColor, riskLabel } from "@/lib/riskUtils";
-export interface AnalysisResult {
-    // Vision call
-    density_percent?: number;
-    risk_level?: "low" | "medium" | "high";
-    hazard_description?: string;
-    confidence_note?: string;
-    // Brief call
-    recommended_action?: string;
-    staff_role_to_notify?: string;
-    fan_message_english?: string;
-    severity_summary?: string;
-    // Meta
-    zone?: string;
-    model?: string;
-    timestamp?: string;
-    // Error case
-    error?: string;
-}
+import { DENSITY_HIGH_THRESHOLD, DENSITY_MEDIUM_THRESHOLD } from "@/lib/constants";
+import type { AnalysisResult } from "@/lib/types";
+
+// Re-export AnalysisResult so existing imports from this file continue to work.
+export type { AnalysisResult };
 
 interface ResultsPanelProps {
     result: AnalysisResult | null;
@@ -26,8 +14,17 @@ interface ResultsPanelProps {
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
-function DensityBar({ pct }: { pct: number }) {
-    const color = pct >= 75 ? "#ff6b6b" : pct >= 50 ? "#f59e0b" : "#10b981";
+
+/**
+ * Renders an animated horizontal bar showing crowd density percentage.
+ * Colour transitions from green → amber → red as density rises through the
+ * DENSITY_MEDIUM_THRESHOLD and DENSITY_HIGH_THRESHOLD values.
+ */
+const DensityBar = memo(function DensityBar({ pct }: { pct: number }) {
+    const color =
+        pct >= DENSITY_HIGH_THRESHOLD ? "#ff6b6b"
+            : pct >= DENSITY_MEDIUM_THRESHOLD ? "#f59e0b"
+                : "#10b981";
     return (
         <div>
             <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "monospace", fontSize: "0.58rem", color: "#7a9bb5", marginBottom: 4 }}>
@@ -39,9 +36,20 @@ function DensityBar({ pct }: { pct: number }) {
             <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color, marginTop: 4 }}>{pct}% occupied</div>
         </div>
     );
-}
+});
 
-function InfoCard({ label, icon, children, accent = "#00a8ff" }: { label: string; icon: string; children: React.ReactNode; accent?: string }) {
+/**
+ * Generic labelled card used to display hazard details, recommended actions,
+ * fan messages, etc. The `accent` colour tints the border and label.
+ */
+const InfoCard = memo(function InfoCard({
+    label, icon, children, accent = "#00a8ff",
+}: {
+    label: string;
+    icon: string;
+    children: React.ReactNode;
+    accent?: string;
+}) {
     return (
         <div style={{ background: `${accent}0d`, border: `1px solid ${accent}30`, borderRadius: 8, padding: "0.85rem 1rem" }}>
             <div style={{ fontFamily: "monospace", fontSize: "0.58rem", color: accent, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6 }}>
@@ -52,10 +60,10 @@ function InfoCard({ label, icon, children, accent = "#00a8ff" }: { label: string
             </div>
         </div>
     );
-}
+});
 
 // ── Loading state ─────────────────────────────────────────────────────────────
-function LoadingState() {
+const LoadingState = memo(function LoadingState() {
     return (
         <div style={{ background: "#0f1c2e", border: "1px solid #1a3151", borderRadius: 10, padding: "2.5rem", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1.25rem", minHeight: 280 }}>
             {/* Spinner — uses @keyframes spin from globals.css */}
@@ -80,10 +88,10 @@ function LoadingState() {
             </div>
         </div>
     );
-}
+});
 
 // ── Empty state ───────────────────────────────────────────────────────────────
-function EmptyState() {
+const EmptyState = memo(function EmptyState() {
     return (
         <div style={{ background: "#0f1c2e", border: "1px dashed #1a3151", borderRadius: 10, padding: "2.5rem", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.75rem", minHeight: 280 }}>
             <div style={{ fontSize: "2.2rem", opacity: 0.4 }} role="img" aria-hidden="true">🔬</div>
@@ -93,10 +101,10 @@ function EmptyState() {
             </div>
         </div>
     );
-}
+});
 
 // ── Error state ───────────────────────────────────────────────────────────────
-function ErrorState({ message }: { message: string }) {
+const ErrorState = memo(function ErrorState({ message }: { message: string }) {
     return (
         <div style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 10, padding: "1.5rem" }}>
             <div style={{ fontFamily: "monospace", fontSize: "0.65rem", color: "#ff6b6b", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>⚠ Analysis Error</div>
@@ -106,10 +114,10 @@ function ErrorState({ message }: { message: string }) {
             </div>
         </div>
     );
-}
+});
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function ResultsPanel({ result, loading = false }: ResultsPanelProps) {
+const ResultsPanel = memo(function ResultsPanel({ result, loading = false }: ResultsPanelProps) {
     if (loading) return <LoadingState />;
     if (!result) return <EmptyState />;
     if (result.error) return <ErrorState message={result.error} />;
@@ -202,4 +210,6 @@ export default function ResultsPanel({ result, loading = false }: ResultsPanelPr
             )}
         </div>
     );
-}
+});
+
+export default ResultsPanel;

@@ -1,3 +1,4 @@
+import { memo } from "react";
 
 export type RiskLevel = "Low" | "Medium" | "High";
 
@@ -12,7 +13,8 @@ const riskConfig: Record<RiskLevel, { color: string; bg: string; glow: string; d
     High: { color: "#ff6b6b", bg: "rgba(255, 107, 107, 0.12)", glow: "rgba(255, 107, 107, 0.4)", dot: "#ff6b6b" },
 };
 
-export default function RiskBadge({ level, size = "md" }: RiskBadgeProps) {
+/** A small pill badge displaying the risk level with a pulsing dot indicator. */
+const RiskBadge = memo(function RiskBadge({ level, size = "md" }: RiskBadgeProps) {
     const cfg = riskConfig[level];
     const isSmall = size === "sm";
 
@@ -51,4 +53,6 @@ export default function RiskBadge({ level, size = "md" }: RiskBadgeProps) {
             {level}
         </span>
     );
-}
+});
+
+export default RiskBadge;

@@ -1,9 +1,15 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function Navbar() {
+/**
+ * Top navigation bar, sticky at the top of every page.
+ * Active route is highlighted via the `pathname` from Next.js's router.
+ * The `statusPulse` keyframe is defined in app/globals.css.
+ */
+const Navbar = memo(function Navbar() {
     const pathname = usePathname();
 
     return (
@@ -138,13 +144,8 @@ export default function Navbar() {
                     </div>
                 </div>
             </div>
-
-            <style jsx>{`
-        @keyframes statusPulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.4; transform: scale(0.8); }
-        }
-      `}</style>
         </nav>
     );
-}
+});
+
+export default Navbar;

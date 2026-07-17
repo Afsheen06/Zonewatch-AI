@@ -1,55 +1,34 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback, useMemo, memo } from "react";
+import Image from "next/image";
+import {
+    MAX_IMAGE_SIZE_BYTES,
+    ALLOWED_IMAGE_TYPES,
+    SAMPLE_IMAGES,
+    type SampleImage,
+} from "@/lib/constants";
 
 interface ImageUploaderProps {
     onImageSelected: (src: string, file?: File) => void;
 }
 
-const SAMPLE_IMAGES = [
-    {
-        id: "sample-1",
-        label: "Gate Crowd",
-        emoji: "🏟️",
-        description: "Dense queue at stadium entry gates",
-        url: "https://images.unsplash.com/photo-1540747913346-19212a4b423e?w=800&q=80",
-    },
-    {
-        id: "sample-2",
-        label: "Concourse",
-        emoji: "🚶",
-        description: "Main concourse during half-time rush",
-        url: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80",
-    },
-    {
-        id: "sample-3",
-        label: "Exit Ramp",
-        emoji: "🚪",
-        description: "Post-match exit ramp congestion",
-        url: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&q=80",
-    },
-    {
-        id: "sample-4",
-        label: "Aerial View",
-        emoji: "🛸",
-        description: "Aerial overview of stadium grounds",
-        url: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800&q=80",
-    },
-];
-
-export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
+/**
+ * Drag-and-drop / click image uploader with sample image quick-select.
+ * Validates file type and size before surfacing the image to the parent.
+ */
+const ImageUploader = memo(function ImageUploader({ onImageSelected }: ImageUploaderProps) {
     const [dragging, setDragging] = useState(false);
     const [selected, setSelected] = useState<string | null>(null);
     const [validationError, setValidationError] = useState<string | null>(null);
     const fileRef = useRef<HTMLInputElement>(null);
 
-    const handleFile = (file: File) => {
-        const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-        if (!allowedTypes.includes(file.type)) {
+    const handleFile = useCallback((file: File) => {
+        if (!(ALLOWED_IMAGE_TYPES as readonly string[]).includes(file.type)) {
             setValidationError("Unsupported file type. Please upload a PNG, JPG, or WebP image.");
             return;
         }
-        if (file.size > 10 * 1024 * 1024) {
+        if (file.size > MAX_IMAGE_SIZE_BYTES) {
             setValidationError("File exceeds size limit. Image size must be less than 10MB.");
             return;
         }
@@ -57,20 +36,44 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
         const url = URL.createObjectURL(file);
         setSelected(url);
         onImageSelected(url, file);
-    };
+    }, [onImageSelected]);
 
-    const handleDrop = (e: React.DragEvent) => {
+    const handleDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
         setDragging(false);
         const file = e.dataTransfer.files[0];
         if (file) handleFile(file);
-    };
+    }, [handleFile]);
 
-    const handleSample = (url: string, id: string) => {
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setDragging(true);
+    }, []);
+
+    const handleDragLeave = useCallback(() => setDragging(false), []);
+
+    const handleSample = useCallback((url: string, id: string) => {
         setValidationError(null);
         setSelected(id);
         onImageSelected(url);
-    };
+    }, [onImageSelected]);
+
+    const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) handleFile(file);
+    }, [handleFile]);
+
+    const handleUploadClick = useCallback(() => {
+        fileRef.current?.click();
+    }, []);
+
+    /** The currently selected sample image object, derived once to avoid repeated .find() calls. */
+    const selectedSample = useMemo<SampleImage | undefined>(
+        () => (selected && !selected.startsWith("blob:"))
+            ? SAMPLE_IMAGES.find((s) => s.id === selected)
+            : undefined,
+        [selected]
+    );
 
     return (
         <div>
@@ -96,10 +99,10 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
             {/* Upload area */}
             <button
                 type="button"
-                onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-                onDragLeave={() => setDragging(false)}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                onClick={() => fileRef.current?.click()}
+                onClick={handleUploadClick}
                 style={{
                     display: "block",
                     width: "100%",
@@ -120,7 +123,7 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
                     <span style={{ color: "#00a8ff", fontWeight: 600 }}>Upload zone image</span>
                     <br />
                     <span style={{ fontSize: "0.7rem", color: "#7a9bb5" }}>
-                        Drag & drop or click to select · PNG, JPG, WebP supported (max 10MB)
+                        Drag &amp; drop or click to select · PNG, JPG, WebP supported (max 10MB)
                     </span>
                 </span>
                 <input
@@ -128,10 +131,7 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
                     type="file"
                     accept="image/*"
                     style={{ display: "none" }}
-                    onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFile(file);
-                    }}
+                    onChange={handleFileInputChange}
                 />
             </button>
 
@@ -185,13 +185,14 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
                 </div>
             </div>
 
-            {/* Preview */}
-            {selected && !selected.startsWith("blob:") && SAMPLE_IMAGES.find(s => s.id === selected) && (
+            {/* Preview — sample image (uses Next.js Image for automatic optimisation) */}
+            {selectedSample && (
                 <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #1a3151" }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        src={SAMPLE_IMAGES.find(s => s.id === selected)!.url}
-                        alt={`Preview of sample CCTV feed in ${SAMPLE_IMAGES.find(s => s.id === selected)!.label} showing: ${SAMPLE_IMAGES.find(s => s.id === selected)!.description}`}
+                    <Image
+                        src={selectedSample.url}
+                        alt={`Preview of sample CCTV feed in ${selectedSample.label} showing: ${selectedSample.description}`}
+                        width={800}
+                        height={200}
                         style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
                     />
                     <div style={{ background: "rgba(0,0,0,0.6)", padding: "0.4rem 0.75rem", fontFamily: "monospace", fontSize: "0.62rem", color: "#7a9bb5" }}>
@@ -199,6 +200,8 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
                     </div>
                 </div>
             )}
+
+            {/* Preview — user-uploaded blob URL (cannot use Next.js Image for blob: URLs) */}
             {selected && selected.startsWith("blob:") && (
                 <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #1a3151" }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -214,4 +217,6 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
             )}
         </div>
     );
-}
+});
+
+export default ImageUploader;

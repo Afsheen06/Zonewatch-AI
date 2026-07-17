@@ -4,8 +4,50 @@ import { extractJSON } from "@/lib/riskUtils";
 const GEMINI_MODEL = "gemini-flash-latest";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
+// ── Prompt constants ──────────────────────────────────────────────────────────
+
+/**
+ * Vision-analysis prompt sent with the crowd image.
+ * Instructs Gemini to assess crowd density, risk level, and observed hazards.
+ */
+const VISION_PROMPT =
+    "You are a stadium safety observer analyzing a crowd photo. " +
+    "Look at the image and return ONLY valid JSON with these fields: " +
+    "density_percent (integer 0-100 estimate of how full the area is), " +
+    "risk_level (exactly one of: 'low', 'medium', or 'high'), " +
+    "hazard_description (one specific sentence about what you actually observe — " +
+    "congestion pattern, blocked pathways, bottlenecks), " +
+    "confidence_note (one sentence on what is clearly visible vs uncertain). " +
+    "Do not include markdown formatting or backticks, only raw JSON.";
+
+/**
+ * Builds the operational-brief prompt, injecting the zone name and vision
+ * analysis data from the first Gemini call.
+ */
+function buildBriefPrompt(zoneName: string, visionData: object): string {
+    return (
+        "You are a stadium operations coordinator. " +
+        "Given this zone analysis, write ONLY valid JSON with: " +
+        "recommended_action (one specific, actionable sentence for venue staff), " +
+        "staff_role_to_notify (e.g. 'Gate Marshal', 'Medical Team', 'Crowd Steward'), " +
+        "fan_message_english (a short calm reassuring message for fans in this zone, 1-2 sentences), " +
+        "severity_summary (one sentence combining risk level and action for the dashboard feed). " +
+        "No markdown, only raw JSON.\n\n" +
+        `Zone: ${zoneName}\n` +
+        `Analysis: ${JSON.stringify(visionData)}`
+    );
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+/**
+ * Sends a single request to the Gemini generateContent endpoint.
+ *
+ * @param apiKey - The Gemini API key from the server environment.
+ * @param parts  - An array of content parts (text and/or inline_data).
+ * @returns The raw text from the first candidate's first part.
+ * @throws {Error} If the request fails or the response is empty.
+ */
 async function callGemini(apiKey: string, parts: object[]): Promise<string> {
     const res = await fetch(GEMINI_URL, {
         method: "POST",
@@ -27,9 +69,15 @@ async function callGemini(apiKey: string, parts: object[]): Promise<string> {
     return text;
 }
 
-
 // ── POST /api/analyze-zone ────────────────────────────────────────────────────
 
+/**
+ * Analyses a stadium zone image using two sequential Gemini calls:
+ * 1. **Vision call** — crowd density, risk level, hazard description.
+ * 2. **Brief call**  — recommended action, staff to notify, fan message.
+ *
+ * Expects a JSON body: `{ imageBase64, mediaType, zoneName }`.
+ */
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
@@ -59,17 +107,7 @@ export async function POST(req: NextRequest) {
                     data: imageBase64,
                 },
             },
-            {
-                text:
-                    "You are a stadium safety observer analyzing a crowd photo. " +
-                    "Look at the image and return ONLY valid JSON with these fields: " +
-                    "density_percent (integer 0-100 estimate of how full the area is), " +
-                    "risk_level (exactly one of: 'low', 'medium', or 'high'), " +
-                    "hazard_description (one specific sentence about what you actually observe — " +
-                    "congestion pattern, blocked pathways, bottlenecks), " +
-                    "confidence_note (one sentence on what is clearly visible vs uncertain). " +
-                    "Do not include markdown formatting or backticks, only raw JSON.",
-            },
+            { text: VISION_PROMPT },
         ]);
 
         const visionData = extractJSON(visionText) as {
@@ -81,18 +119,7 @@ export async function POST(req: NextRequest) {
 
         // ── Call 2: Operational brief ─────────────────────────────────────────
         const briefText = await callGemini(apiKey, [
-            {
-                text:
-                    "You are a stadium operations coordinator. " +
-                    "Given this zone analysis, write ONLY valid JSON with: " +
-                    "recommended_action (one specific, actionable sentence for venue staff), " +
-                    "staff_role_to_notify (e.g. 'Gate Marshal', 'Medical Team', 'Crowd Steward'), " +
-                    "fan_message_english (a short calm reassuring message for fans in this zone, 1-2 sentences), " +
-                    "severity_summary (one sentence combining risk level and action for the dashboard feed). " +
-                    "No markdown, only raw JSON.\n\n" +
-                    `Zone: ${zoneName}\n` +
-                    `Analysis: ${JSON.stringify(visionData)}`,
-            },
+            { text: buildBriefPrompt(zoneName, visionData) },
         ]);
 
         const briefData = extractJSON(briefText) as {
@@ -130,6 +157,8 @@ export async function POST(req: NextRequest) {
 }
 
 // ── GET /api/analyze-zone  (health check) ─────────────────────────────────────
+
+/** Returns a simple health-check payload confirming the service is reachable. */
 export async function GET() {
     return NextResponse.json({
         status: "ok",

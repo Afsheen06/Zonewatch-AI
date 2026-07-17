@@ -1,5 +1,7 @@
+import { memo } from "react";
 import Link from "next/link";
 import RiskBadge, { RiskLevel } from "./RiskBadge";
+import { LOAD_HIGH_THRESHOLD, LOAD_MEDIUM_THRESHOLD } from "@/lib/constants";
 
 interface ZoneCardProps {
     id: string;
@@ -12,13 +14,17 @@ interface ZoneCardProps {
     icon: string;
 }
 
+/**
+ * Returns the colour for the capacity-load bar and occupancy stat.
+ * Uses named thresholds from constants.ts to avoid scattered magic numbers.
+ */
 function getLoadColor(pct: number): string {
-    if (pct >= 90) return "#ff6b6b";
-    if (pct >= 70) return "#f59e0b";
+    if (pct >= LOAD_HIGH_THRESHOLD) return "#ff6b6b";
+    if (pct >= LOAD_MEDIUM_THRESHOLD) return "#f59e0b";
     return "#10b981";
 }
 
-export default function ZoneCard({
+const ZoneCard = memo(function ZoneCard({
     id, name, location, capacity, currentLoad, riskLevel, lastUpdated, icon
 }: ZoneCardProps) {
     const loadPct = Math.round((currentLoad / capacity) * 100);
@@ -174,7 +180,8 @@ export default function ZoneCard({
                     ⟫ Analyze Zone
                 </Link>
             </div>
-
         </div>
     );
-}
+});
+
+export default ZoneCard;
