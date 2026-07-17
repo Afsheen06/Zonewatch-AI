@@ -103,7 +103,7 @@ export default function ZoneDetailPage() {
             <div style={{ maxWidth: 1100, margin: "0 auto" }}>
 
                 {/* Breadcrumb */}
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontFamily: "monospace", fontSize: "0.65rem", color: "#4a6580", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "1.5rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontFamily: "monospace", fontSize: "0.65rem", color: "#7a9bb5", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "1.5rem" }}>
                     <Link href="/dashboard" style={{ color: "#00a8ff", textDecoration: "none" }}>Dashboard</Link>
                     <span>›</span>
                     <span style={{ color: "#7a9bb5" }}>{meta.name}</span>
@@ -115,13 +115,13 @@ export default function ZoneDetailPage() {
                 <div style={{ marginBottom: "2rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: 8 }}>
                         <div style={{ width: 50, height: 50, background: "rgba(0, 168, 255, 0.08)", border: "1px solid rgba(0, 168, 255, 0.2)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", flexShrink: 0 }}>
-                            {meta.icon}
+                            <span role="img" aria-hidden="true">{meta.icon}</span>
                         </div>
                         <div>
                             <h1 style={{ fontFamily: "monospace", fontSize: "1.5rem", fontWeight: 700, color: "#e2e8f0", lineHeight: 1.2 }}>
                                 {meta.name} — Zone Analysis
                             </h1>
-                            <p style={{ fontFamily: "monospace", fontSize: "0.68rem", color: "#4a6580", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                            <p style={{ fontFamily: "monospace", fontSize: "0.68rem", color: "#8ba0b5", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                                 {meta.location}
                             </p>
                         </div>
@@ -135,7 +135,7 @@ export default function ZoneDetailPage() {
                     {/* ── Left: Image input ── */}
                     <div>
                         <div style={{ background: "#0d1520", border: "1px solid #1a3151", borderRadius: 10, padding: "1.5rem" }}>
-                            <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#4a6580", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#8ba0b5", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                                 <span style={{ color: "#00a8ff" }}>◈</span> Zone Image Input
                             </div>
 
@@ -158,7 +158,7 @@ export default function ZoneDetailPage() {
                                     background: isReady
                                         ? "linear-gradient(135deg, #0066cc, #00a8ff)"
                                         : "rgba(0, 168, 255, 0.1)",
-                                    color: isReady ? "white" : "#4a6580",
+                                    color: isReady ? "white" : "#7a9bb5",
                                     border: `1px solid ${isReady ? "transparent" : "#1a3151"}`,
                                     borderRadius: 8,
                                     fontFamily: "monospace",
@@ -175,7 +175,7 @@ export default function ZoneDetailPage() {
                             </button>
 
                             {!selectedSrc && (
-                                <p style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#2a4560", textAlign: "center", marginTop: "0.6rem" }}>
+                                <p style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#7a9bb5", textAlign: "center", marginTop: "0.6rem" }}>
                                     Select an image above to enable analysis
                                 </p>
                             )}
@@ -183,7 +183,7 @@ export default function ZoneDetailPage() {
 
                         {/* Zone metadata card */}
                         <div style={{ background: "#0d1520", border: "1px solid #1a3151", borderRadius: 10, padding: "1.25rem", marginTop: "1rem" }}>
-                            <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#4a6580", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "0.75rem" }}>◈ Zone Metadata</div>
+                            <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#8ba0b5", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "0.75rem" }}>◈ Zone Metadata</div>
                             {[
                                 { label: "Zone ID", value: id },
                                 { label: "Location", value: meta.location },
@@ -192,7 +192,7 @@ export default function ZoneDetailPage() {
                                 { label: "Status", value: "🟢 Ready" },
                             ].map(({ label, value }) => (
                                 <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.45rem 0", borderBottom: "1px solid rgba(26, 49, 81, 0.5)" }}>
-                                    <span style={{ fontFamily: "monospace", fontSize: "0.65rem", color: "#4a6580" }}>{label}</span>
+                                    <span style={{ fontFamily: "monospace", fontSize: "0.65rem", color: "#7a9bb5" }}>{label}</span>
                                     <span style={{ fontFamily: "monospace", fontSize: "0.68rem", color: "#7a9bb5" }}>{value}</span>
                                 </div>
                             ))}
@@ -202,7 +202,7 @@ export default function ZoneDetailPage() {
                     {/* ── Right: Results ── */}
                     <div>
                         <div style={{ background: "#0d1520", border: "1px solid #1a3151", borderRadius: 10, padding: "1.5rem" }}>
-                            <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#4a6580", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#8ba0b5", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                                 <span style={{ color: "#f59e0b" }}>◈</span> AI Analysis Results
                             </div>
 
@@ -211,7 +211,7 @@ export default function ZoneDetailPage() {
                             {/* Action log */}
                             {result && !result.error && (
                                 <div style={{ marginTop: "1.25rem" }}>
-                                    <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#4a6580", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "0.75rem" }}>◈ Action Log</div>
+                                    <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#8ba0b5", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: "0.75rem" }}>◈ Action Log</div>
                                     <div style={{ background: "rgba(0,0,0,0.4)", border: "1px solid #1a3151", borderRadius: 6, padding: "0.75rem", fontFamily: "monospace", fontSize: "0.65rem", lineHeight: 2 }}>
                                         {[
                                             { icon: "✓", color: "#10b981", text: "Image received and encoded" },
@@ -219,14 +219,14 @@ export default function ZoneDetailPage() {
                                             { icon: "✓", color: "#10b981", text: "Operational brief generated" },
                                             {
                                                 icon: "⚑",
-                                                color: result.risk_level === "high" ? "#ef4444" : result.risk_level === "medium" ? "#f59e0b" : "#10b981",
+                                                color: result.risk_level === "high" ? "#ff6b6b" : result.risk_level === "medium" ? "#f59e0b" : "#10b981",
                                                 text: `Risk level: ${(result.risk_level ?? "unknown").toUpperCase()}`
                                             },
                                             { icon: "→", color: "#00a8ff", text: "Action dispatched to ops team" },
                                         ].map(({ icon, color, text }, i) => (
-                                            <div key={i} style={{ color: "#4a6580" }}>
+                                            <div key={i} style={{ color: "#7a9bb5" }}>
                                                 [ {new Date(result.timestamp ?? "").toLocaleTimeString()} ]&nbsp;
-                                                <span style={{ color }}>{icon}</span> {text}
+                                                <span style={{ color }} aria-hidden="true">{icon}</span> {text}
                                             </div>
                                         ))}
                                     </div>

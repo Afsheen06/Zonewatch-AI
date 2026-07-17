@@ -40,9 +40,20 @@ const SAMPLE_IMAGES = [
 export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
     const [dragging, setDragging] = useState(false);
     const [selected, setSelected] = useState<string | null>(null);
+    const [validationError, setValidationError] = useState<string | null>(null);
     const fileRef = useRef<HTMLInputElement>(null);
 
     const handleFile = (file: File) => {
+        const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+        if (!allowedTypes.includes(file.type)) {
+            setValidationError("Unsupported file type. Please upload a PNG, JPG, or WebP image.");
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            setValidationError("File exceeds size limit. Image size must be less than 10MB.");
+            return;
+        }
+        setValidationError(null);
         const url = URL.createObjectURL(file);
         setSelected(url);
         onImageSelected(url, file);
@@ -52,23 +63,46 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
         e.preventDefault();
         setDragging(false);
         const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith("image/")) handleFile(file);
+        if (file) handleFile(file);
     };
 
     const handleSample = (url: string, id: string) => {
+        setValidationError(null);
         setSelected(id);
         onImageSelected(url);
     };
 
     return (
         <div>
+            {/* Validation Error Message */}
+            {validationError && (
+                <div
+                    style={{
+                        background: "rgba(255, 107, 107, 0.12)",
+                        border: "1px solid rgba(255, 107, 107, 0.3)",
+                        color: "#ff6b6b",
+                        padding: "0.75rem",
+                        borderRadius: 6,
+                        fontFamily: "monospace",
+                        fontSize: "0.72rem",
+                        marginBottom: "1rem"
+                    }}
+                    role="alert"
+                >
+                    ⚠ {validationError}
+                </div>
+            )}
+
             {/* Upload area */}
-            <div
+            <button
+                type="button"
                 onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={handleDrop}
                 onClick={() => fileRef.current?.click()}
                 style={{
+                    display: "block",
+                    width: "100%",
                     border: `2px dashed ${dragging ? "#00a8ff" : "#1a3151"}`,
                     borderRadius: 10,
                     padding: "2.5rem",
@@ -79,15 +113,16 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
                     boxShadow: dragging ? "0 0 30px rgba(0, 168, 255, 0.15) inset" : "none",
                     marginBottom: "1.5rem",
                 }}
+                aria-label="Upload zone image. Drag and drop or click to select a PNG, JPG, or WebP file (maximum size 10MB)."
             >
-                <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>📡</div>
-                <div style={{ fontFamily: "monospace", color: "#7a9bb5", fontSize: "0.85rem", lineHeight: 1.5 }}>
+                <span style={{ fontSize: "2.5rem", marginBottom: "0.75rem", display: "block" }} role="img" aria-label="Satellite dish icon">📡</span>
+                <span style={{ fontFamily: "monospace", color: "#7a9bb5", fontSize: "0.85rem", lineHeight: 1.5, display: "block" }}>
                     <span style={{ color: "#00a8ff", fontWeight: 600 }}>Upload zone image</span>
                     <br />
-                    <span style={{ fontSize: "0.7rem", color: "#4a6580" }}>
-                        Drag & drop or click to select · PNG, JPG, WebP supported
+                    <span style={{ fontSize: "0.7rem", color: "#7a9bb5" }}>
+                        Drag & drop or click to select · PNG, JPG, WebP supported (max 10MB)
                     </span>
-                </div>
+                </span>
                 <input
                     ref={fileRef}
                     type="file"
@@ -98,7 +133,7 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
                         if (file) handleFile(file);
                     }}
                 />
-            </div>
+            </button>
 
             {/* Sample images */}
             <div style={{ marginBottom: "1.25rem" }}>
@@ -106,7 +141,7 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
                     style={{
                         fontFamily: "monospace",
                         fontSize: "0.65rem",
-                        color: "#4a6580",
+                        color: "#7a9bb5",
                         letterSpacing: "0.12em",
                         textTransform: "uppercase",
                         marginBottom: "0.75rem",
@@ -135,12 +170,12 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
                                     textAlign: "left",
                                 }}
                             >
-                                <span style={{ fontSize: "1.4rem" }}>{sample.emoji}</span>
+                                <span style={{ fontSize: "1.4rem" }} role="img" aria-hidden="true">{sample.emoji}</span>
                                 <div>
                                     <div style={{ fontFamily: "monospace", fontSize: "0.72rem", color: isActive ? "#00a8ff" : "#e2e8f0", fontWeight: 600 }}>
                                         {sample.label}
                                     </div>
-                                    <div style={{ fontFamily: "monospace", fontSize: "0.58rem", color: "#4a6580", lineHeight: 1.4 }}>
+                                    <div style={{ fontFamily: "monospace", fontSize: "0.58rem", color: "#7a9bb5", lineHeight: 1.4 }}>
                                         {sample.description}
                                     </div>
                                 </div>
@@ -156,10 +191,10 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={SAMPLE_IMAGES.find(s => s.id === selected)!.url}
-                        alt="Selected zone"
+                        alt={`Preview of sample CCTV feed in ${SAMPLE_IMAGES.find(s => s.id === selected)!.label} showing: ${SAMPLE_IMAGES.find(s => s.id === selected)!.description}`}
                         style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
                     />
-                    <div style={{ background: "rgba(0,0,0,0.6)", padding: "0.4rem 0.75rem", fontFamily: "monospace", fontSize: "0.62rem", color: "#4a6580" }}>
+                    <div style={{ background: "rgba(0,0,0,0.6)", padding: "0.4rem 0.75rem", fontFamily: "monospace", fontSize: "0.62rem", color: "#7a9bb5" }}>
                         ✓ Sample image loaded — click Analyze Zone to proceed
                     </div>
                 </div>
@@ -169,10 +204,10 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={selected}
-                        alt="Uploaded zone"
+                        alt="Preview of user uploaded CCTV feed image for crowd analysis"
                         style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
                     />
-                    <div style={{ background: "rgba(0,0,0,0.6)", padding: "0.4rem 0.75rem", fontFamily: "monospace", fontSize: "0.62rem", color: "#4a6580" }}>
+                    <div style={{ background: "rgba(0,0,0,0.6)", padding: "0.4rem 0.75rem", fontFamily: "monospace", fontSize: "0.62rem", color: "#7a9bb5" }}>
                         ✓ Image uploaded — ready for analysis
                     </div>
                 </div>

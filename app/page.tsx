@@ -262,7 +262,7 @@ export default function Home() {
                             >
                                 {value}
                             </div>
-                            <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#4a6580", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                            <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#7a9bb5", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                                 {label}
                             </div>
                         </div>

@@ -97,7 +97,7 @@ export default function Dashboard() {
                                 style={{
                                     fontFamily: "monospace",
                                     fontSize: "0.62rem",
-                                    color: "#4a6580",
+                                    color: "#8ba0b5",
                                     letterSpacing: "0.15em",
                                     textTransform: "uppercase",
                                     marginBottom: 6,
@@ -125,7 +125,7 @@ export default function Dashboard() {
                         {/* Alert summary */}
                         <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
                             {[
-                                { count: highCount, label: "CRITICAL", color: "#ef4444", bg: "rgba(239,68,68,0.12)" },
+                                { count: highCount, label: "CRITICAL", color: "#ff6b6b", bg: "rgba(255,107,107,0.12)" },
                                 { count: medCount, label: "WARNING", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
                                 { count: lowCount, label: "CLEAR", color: "#10b981", bg: "rgba(16,185,129,0.12)" },
                             ].map(({ count, label, color, bg }) => (
@@ -169,13 +169,13 @@ export default function Dashboard() {
                         style={{
                             fontFamily: "monospace",
                             fontSize: "0.6rem",
-                            color: "#ef4444",
+                            color: "#ff6b6b",
                             letterSpacing: "0.12em",
                             textTransform: "uppercase",
                             flexShrink: 0,
                             padding: "0.15rem 0.4rem",
-                            background: "rgba(239,68,68,0.12)",
-                            border: "1px solid rgba(239,68,68,0.3)",
+                            background: "rgba(255,107,107,0.12)",
+                            border: "1px solid rgba(255,107,107,0.3)",
                             borderRadius: 3,
                         }}
                     >
@@ -205,7 +205,7 @@ export default function Dashboard() {
                         marginTop: "2rem",
                         fontFamily: "monospace",
                         fontSize: "0.6rem",
-                        color: "#2a4560",
+                        color: "#627d98",
                         textAlign: "center",
                         letterSpacing: "0.08em",
                         textTransform: "uppercase",

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { extractJSON } from "@/lib/riskUtils";
 
 const GEMINI_MODEL = "gemini-flash-latest";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
@@ -26,16 +27,6 @@ async function callGemini(apiKey: string, parts: object[]): Promise<string> {
     return text;
 }
 
-/** Strip markdown fences and extract the first JSON object from a response. */
-function extractJSON(text: string): Record<string, unknown> {
-    const stripped = text
-        .replace(/```json\s*/gi, "")
-        .replace(/```\s*/g, "")
-        .trim();
-    const match = stripped.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error(`No JSON object in model response: ${text.slice(0, 200)}`);
-    return JSON.parse(match[0]);
-}
 
 // ── POST /api/analyze-zone ────────────────────────────────────────────────────
 
@@ -121,8 +112,18 @@ export async function POST(req: NextRequest) {
     } catch (err) {
         const message = err instanceof Error ? err.message : "Unknown error";
         console.error("[analyze-zone] Error:", message);
+
+        let clientError = "An unexpected error occurred during zone analysis.";
+        if (message.includes("Gemini API")) {
+            const match = message.match(/Gemini API (\d+)/);
+            const status = match ? match[1] : "error";
+            clientError = `Analysis service error (Status ${status}). Please try again later.`;
+        } else if (message.includes("GEMINI_API_KEY")) {
+            clientError = "GEMINI_API_KEY environment variable is not set.";
+        }
+
         return NextResponse.json(
-            { error: message, zone: "unknown", timestamp: new Date().toISOString() },
+            { error: clientError, zone: "unknown", timestamp: new Date().toISOString() },
             { status: 500 }
         );
     }

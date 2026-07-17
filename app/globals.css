@@ -11,7 +11,7 @@
     --amber: #f59e0b;
     --amber-dim: #b45309;
     --green: #10b981;
-    --red: #ef4444;
+    --red: #ff6b6b;
     --text-primary: #e2e8f0;
     --text-secondary: #7a9bb5;
     --text-muted: #4a6580;
@@ -260,4 +260,13 @@
     box-shadow: 0 0 15px rgba(0, 168, 255, 0.5) !important;
     transform: translateY(-1px);
   }
+}
+
+/* Global Focus indicators for accessibility */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--electric-blue) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 10px rgba(0, 168, 255, 0.5) !important;
 }

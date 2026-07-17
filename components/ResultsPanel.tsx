@@ -1,6 +1,6 @@
 "use client";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+import { riskColor, riskLabel } from "@/lib/riskUtils";
 export interface AnalysisResult {
     // Vision call
     density_percent?: number;
@@ -25,31 +25,12 @@ interface ResultsPanelProps {
     loading?: boolean;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function riskColor(level?: string): string {
-    switch ((level ?? "").toLowerCase()) {
-        case "high": return "#ef4444";
-        case "medium": return "#f59e0b";
-        case "low": return "#10b981";
-        default: return "#7a9bb5";
-    }
-}
-
-function riskLabel(level?: string): string {
-    switch ((level ?? "").toLowerCase()) {
-        case "high": return "HIGH RISK";
-        case "medium": return "MEDIUM RISK";
-        case "low": return "LOW RISK";
-        default: return "UNKNOWN";
-    }
-}
-
 // ── Sub-components ────────────────────────────────────────────────────────────
 function DensityBar({ pct }: { pct: number }) {
-    const color = pct >= 75 ? "#ef4444" : pct >= 50 ? "#f59e0b" : "#10b981";
+    const color = pct >= 75 ? "#ff6b6b" : pct >= 50 ? "#f59e0b" : "#10b981";
     return (
         <div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "monospace", fontSize: "0.58rem", color: "#4a6580", marginBottom: 4 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "monospace", fontSize: "0.58rem", color: "#7a9bb5", marginBottom: 4 }}>
                 <span>0%</span><span>50%</span><span>100%</span>
             </div>
             <div style={{ height: 8, background: "rgba(255,255,255,0.05)", borderRadius: 4, overflow: "hidden" }}>
@@ -64,7 +45,7 @@ function InfoCard({ label, icon, children, accent = "#00a8ff" }: { label: string
     return (
         <div style={{ background: `${accent}0d`, border: `1px solid ${accent}30`, borderRadius: 8, padding: "0.85rem 1rem" }}>
             <div style={{ fontFamily: "monospace", fontSize: "0.58rem", color: accent, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6 }}>
-                {icon} {label}
+                <span aria-hidden="true" style={{ marginRight: "0.25rem" }}>{icon}</span> {label}
             </div>
             <div style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#e2e8f0", lineHeight: 1.6 }}>
                 {children}
@@ -86,7 +67,7 @@ function LoadingState() {
                 <div style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#7a9bb5", letterSpacing: "0.05em", textAlign: "center", marginBottom: 6 }}>
                     Running AI analysis...
                 </div>
-                <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#4a6580", textAlign: "center" }}>
+                <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#7a9bb5", textAlign: "center" }}>
                     Call 1 · Vision scan → Call 2 · Ops brief
                 </div>
             </div>
@@ -105,9 +86,9 @@ function LoadingState() {
 function EmptyState() {
     return (
         <div style={{ background: "#0f1c2e", border: "1px dashed #1a3151", borderRadius: 10, padding: "2.5rem", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.75rem", minHeight: 280 }}>
-            <div style={{ fontSize: "2.2rem", opacity: 0.4 }}>🔬</div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#4a6580", textAlign: "center" }}>Analysis results will appear here</div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#2a4560", textAlign: "center", maxWidth: 260 }}>
+            <div style={{ fontSize: "2.2rem", opacity: 0.4 }} role="img" aria-hidden="true">🔬</div>
+            <div style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#7a9bb5", textAlign: "center" }}>Analysis results will appear here</div>
+            <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#7a9bb5", textAlign: "center", maxWidth: 260 }}>
                 Select or upload an image, then click Analyze Zone to get AI-powered insights
             </div>
         </div>
@@ -118,10 +99,10 @@ function EmptyState() {
 function ErrorState({ message }: { message: string }) {
     return (
         <div style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 10, padding: "1.5rem" }}>
-            <div style={{ fontFamily: "monospace", fontSize: "0.65rem", color: "#ef4444", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>⚠ Analysis Error</div>
+            <div style={{ fontFamily: "monospace", fontSize: "0.65rem", color: "#ff6b6b", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>⚠ Analysis Error</div>
             <div style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "#fca5a5", lineHeight: 1.6 }}>{message}</div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#4a6580", marginTop: 10 }}>
-                Check that ANTHROPIC_API_KEY is set in .env.local and the server has been restarted.
+            <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#7a9bb5", marginTop: 10 }}>
+                Check that GEMINI_API_KEY is set in .env.local and the server has been restarted.
             </div>
         </div>
     );
@@ -144,21 +125,25 @@ export default function ResultsPanel({ result, loading = false }: ResultsPanelPr
             <div style={{ background: `${rc}18`, border: `1px solid ${rc}44`, borderRadius: 10, padding: "1.1rem 1.25rem", boxShadow: `0 0 30px ${rc}15` }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: rc, boxShadow: `0 0 8px ${rc}`, animation: "statusPulse 2s ease-in-out infinite", flexShrink: 0 }} />
-                        <span style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#4a6580", letterSpacing: "0.12em", textTransform: "uppercase" }}>AI Analysis Complete</span>
+                        <div
+                            style={{ width: 8, height: 8, borderRadius: "50%", background: rc, boxShadow: `0 0 8px ${rc}`, animation: "statusPulse 2s ease-in-out infinite", flexShrink: 0 }}
+                            role="img"
+                            aria-hidden="true"
+                        />
+                        <span style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#8ba0b5", letterSpacing: "0.12em", textTransform: "uppercase" }}>AI Analysis Complete</span>
                     </div>
                     {timeLabel && (
-                        <span style={{ fontFamily: "monospace", fontSize: "0.58rem", color: "#4a6580" }}>{timeLabel}</span>
+                        <span style={{ fontFamily: "monospace", fontSize: "0.58rem", color: "#7a9bb5" }}>{timeLabel}</span>
                     )}
                 </div>
                 <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
                     <div>
-                        <div style={{ fontFamily: "monospace", fontSize: "0.55rem", color: "#4a6580", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 2 }}>Risk Level</div>
+                        <div style={{ fontFamily: "monospace", fontSize: "0.55rem", color: "#7a9bb5", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 2 }}>Risk Level</div>
                         <div style={{ fontFamily: "monospace", fontSize: "1.7rem", fontWeight: 700, color: rc, letterSpacing: "0.04em" }}>{riskLabel(result.risk_level)}</div>
                     </div>
                     {typeof result.density_percent === "number" && (
                         <div style={{ flex: 1, marginLeft: "1.5rem" }}>
-                            <div style={{ fontFamily: "monospace", fontSize: "0.55rem", color: "#4a6580", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6 }}>Crowd Density</div>
+                            <div style={{ fontFamily: "monospace", fontSize: "0.55rem", color: "#7a9bb5", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6 }}>Crowd Density</div>
                             <DensityBar pct={result.density_percent} />
                         </div>
                     )}
@@ -197,15 +182,15 @@ export default function ResultsPanel({ result, loading = false }: ResultsPanelPr
             {/* ── Severity summary (dashboard feed line) ────────────────── */}
             {result.severity_summary && (
                 <div style={{ background: "rgba(0,0,0,0.35)", border: "1px solid #1a3151", borderRadius: 7, padding: "0.65rem 1rem", display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
-                    <span style={{ color: rc, fontSize: "0.7rem", flexShrink: 0 }}>◈</span>
+                    <span style={{ color: rc, fontSize: "0.7rem", flexShrink: 0 }} aria-hidden="true">◈</span>
                     <div style={{ fontFamily: "monospace", fontSize: "0.68rem", color: "#7a9bb5", lineHeight: 1.5 }}>{result.severity_summary}</div>
                 </div>
             )}
 
             {/* ── Confidence note ───────────────────────────────────────── */}
             {result.confidence_note && (
-                <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#4a6580", lineHeight: 1.5, paddingTop: 2 }}>
-                    <span style={{ color: "#2a4560" }}>ℹ Confidence · </span>{result.confidence_note}
+                <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#7a9bb5", lineHeight: 1.5, paddingTop: 2 }}>
+                    <span style={{ color: "#7a9bb5" }}>ℹ Confidence · </span>{result.confidence_note}
                 </div>
             )}
 

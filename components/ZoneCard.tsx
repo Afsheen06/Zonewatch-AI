@@ -13,7 +13,7 @@ interface ZoneCardProps {
 }
 
 function getLoadColor(pct: number): string {
-    if (pct >= 90) return "#ef4444";
+    if (pct >= 90) return "#ff6b6b";
     if (pct >= 70) return "#f59e0b";
     return "#10b981";
 }
@@ -69,13 +69,13 @@ export default function ZoneCard({
                             flexShrink: 0,
                         }}
                     >
-                        {icon}
+                        <span role="img" aria-hidden="true">{icon}</span>
                     </div>
                     <div>
                         <div style={{ color: "#e2e8f0", fontWeight: 600, fontSize: "0.9rem", fontFamily: "monospace" }}>
                             {name}
                         </div>
-                        <div style={{ color: "#4a6580", fontSize: "0.65rem", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "monospace" }}>
+                        <div style={{ color: "#7a9bb5", fontSize: "0.65rem", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "monospace" }}>
                             {location}
                         </div>
                     </div>
@@ -93,7 +93,7 @@ export default function ZoneCard({
                 }}
             >
                 <div style={{ background: "rgba(0, 0, 0, 0.3)", borderRadius: 6, padding: "0.5rem 0.75rem" }}>
-                    <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#4a6580", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 3 }}>
+                    <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#7a9bb5", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 3 }}>
                         Occupancy
                     </div>
                     <div style={{ fontFamily: "monospace", fontSize: "1.1rem", fontWeight: 700, color: loadColor }}>
@@ -101,7 +101,7 @@ export default function ZoneCard({
                     </div>
                 </div>
                 <div style={{ background: "rgba(0, 0, 0, 0.3)", borderRadius: 6, padding: "0.5rem 0.75rem" }}>
-                    <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#4a6580", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 3 }}>
+                    <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#7a9bb5", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 3 }}>
                         Persons
                     </div>
                     <div style={{ fontFamily: "monospace", fontSize: "1.1rem", fontWeight: 700, color: "#e2e8f0" }}>
@@ -118,7 +118,7 @@ export default function ZoneCard({
                         justifyContent: "space-between",
                         fontFamily: "monospace",
                         fontSize: "0.58rem",
-                        color: "#4a6580",
+                        color: "#7a9bb5",
                         letterSpacing: "0.08em",
                         textTransform: "uppercase",
                         marginBottom: "0.35rem",
@@ -150,29 +150,28 @@ export default function ZoneCard({
 
             {/* Footer */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontFamily: "monospace", fontSize: "0.58rem", color: "#4a6580", letterSpacing: "0.06em" }}>
+                <span style={{ fontFamily: "monospace", fontSize: "0.58rem", color: "#7a9bb5", letterSpacing: "0.06em" }}>
                     ⟳ {lastUpdated}
                 </span>
-                <Link href={`/zone/${id}`} style={{ textDecoration: "none" }}>
-                    <button
-                        style={{
-                            background: "linear-gradient(135deg, #0066cc, #00a8ff)",
-                            color: "white",
-                            border: "none",
-                            borderRadius: 5,
-                            padding: "0.4rem 0.85rem",
-                            fontFamily: "monospace",
-                            fontSize: "0.68rem",
-                            fontWeight: 600,
-                            letterSpacing: "0.06em",
-                            cursor: "pointer",
-                            textTransform: "uppercase",
-                            transition: "all 0.2s ease",
-                        }}
-                        className="analyze-btn"
-                    >
-                        ⟫ Analyze Zone
-                    </button>
+                <Link
+                    href={`/zone/${id}`}
+                    style={{
+                        display: "inline-block",
+                        background: "linear-gradient(135deg, #0066cc, #00a8ff)",
+                        color: "white",
+                        borderRadius: 5,
+                        padding: "0.4rem 0.85rem",
+                        fontFamily: "monospace",
+                        fontSize: "0.68rem",
+                        fontWeight: 600,
+                        letterSpacing: "0.06em",
+                        textDecoration: "none",
+                        textTransform: "uppercase",
+                        transition: "all 0.2s ease",
+                    }}
+                    className="analyze-btn"
+                >
+                    ⟫ Analyze Zone
                 </Link>
             </div>
 

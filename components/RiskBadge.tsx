@@ -9,7 +9,7 @@ interface RiskBadgeProps {
 const riskConfig: Record<RiskLevel, { color: string; bg: string; glow: string; dot: string }> = {
     Low: { color: "#10b981", bg: "rgba(16, 185, 129, 0.12)", glow: "rgba(16, 185, 129, 0.4)", dot: "#10b981" },
     Medium: { color: "#f59e0b", bg: "rgba(245, 158, 11, 0.12)", glow: "rgba(245, 158, 11, 0.4)", dot: "#f59e0b" },
-    High: { color: "#ef4444", bg: "rgba(239, 68, 68, 0.12)", glow: "rgba(239, 68, 68, 0.4)", dot: "#ef4444" },
+    High: { color: "#ff6b6b", bg: "rgba(255, 107, 107, 0.12)", glow: "rgba(255, 107, 107, 0.4)", dot: "#ff6b6b" },
 };
 
 export default function RiskBadge({ level, size = "md" }: RiskBadgeProps) {
@@ -36,6 +36,7 @@ export default function RiskBadge({ level, size = "md" }: RiskBadgeProps) {
             }}
         >
             <span
+                aria-hidden="true"
                 style={{
                     width: isSmall ? 5 : 6,
                     height: isSmall ? 5 : 6,

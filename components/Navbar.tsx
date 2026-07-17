@@ -45,7 +45,7 @@ export default function Navbar() {
                                 flexShrink: 0,
                             }}
                         >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" role="img" aria-hidden="true">
                                 <circle cx="12" cy="12" r="3" fill="white" />
                                 <path
                                     d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
@@ -74,7 +74,7 @@ export default function Navbar() {
                                 style={{
                                     fontFamily: "monospace",
                                     fontSize: "0.6rem",
-                                    color: "#4a6580",
+                                    color: "#7a9bb5",
                                     letterSpacing: "0.12em",
                                     textTransform: "uppercase",
                                     marginTop: 2,
@@ -121,6 +121,8 @@ export default function Navbar() {
                                 boxShadow: "0 0 8px rgba(16, 185, 129, 0.8)",
                                 animation: "statusPulse 2s ease-in-out infinite",
                             }}
+                            role="img"
+                            aria-hidden="true"
                         />
                         <span
                             style={{
