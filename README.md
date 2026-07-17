@@ -11,9 +11,17 @@
 [![Gemini API](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 [![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 
-[Live Demo](#) · [Report Bug](#) · [Request Feature](#)
+[Live Demo](https://zonewatch-ai.vercel.app) · [GitHub Repo](https://github.com/Afsheen06/Zonewatch-AI)
 
 </div>
+
+---
+
+## 🎯 Chosen Vertical
+
+**Stadium Operations & Crowd Safety Management**
+
+ZoneWatch AI is built for the **stadium operations team persona** — the volunteers, crowd stewards, and control-room staff responsible for real-time safety and flow management inside a tournament venue. The solution focuses specifically on **crowd congestion detection, hazard identification, and real-time operational decision support**, directly addressing the "Smart Stadiums & Tournament Operations" challenge vertical for FIFA World Cup 2026.
 
 ---
 
@@ -41,7 +49,7 @@ The result: slower response times, avoidable safety incidents, and a degraded ex
 
 ---
 
-## 💡 Solution
+## 💡 Solution & Approach
 
 **ZoneWatch AI** closes the gap between *seeing* a problem and *acting* on it.
 
@@ -51,7 +59,7 @@ The result: slower response times, avoidable safety incidents, and a degraded ex
 4. The system auto-drafts **two outputs** — an internal instruction for staff, and a calm, fan-facing safety message.
 5. Everything lands on a live, zone-based **operations dashboard** so teams can monitor multiple areas at once.
 
-The result is a tool that doesn't just flag a problem — it tells the right person, in the right words, exactly what to do next.
+The core logic follows a simple decision chain: **see → assess → reason → recommend → notify**, so every analysis ends in a concrete action rather than just a data point. The result is a tool that doesn't just flag a problem — it tells the right person, in the right words, exactly what to do next.
 
 ---
 
@@ -69,6 +77,9 @@ The result is a tool that doesn't just flag a problem — it tells the right per
 | 🖥️ | **Interactive Stadium Dashboard** | Live overview across multiple zones and gates |
 | 📍 | **Zone-Based Analysis** | Independent monitoring for Gate A, Gate B, Concourse, and beyond |
 | 📱 | **Responsive Modern UI** | Built for use on ops tablets, laptops, and mobile devices alike |
+| ✅ | **Automated Test Suite** | Unit and integration tests covering API logic, risk classification, and UI rendering |
+| ♿ | **WCAG AA Accessibility** | Keyboard navigation, focus states, alt text, and contrast-compliant UI |
+| 🔐 | **Security Hardening** | Server-side API key handling, upload validation, and sanitized error responses |
 
 ---
 
@@ -114,6 +125,11 @@ flowchart LR
 
 **Backend / API Routes**
 - Next.js API routes handle image intake, Gemini API calls, and response formatting — keeping the Gemini API key server-side and never exposed to the client.
+- Uploaded files are validated for type (PNG/JPG/WebP) and size (max 10MB) before being sent to Gemini.
+- API errors are caught and sanitized before reaching the client, so no internal error detail or stack trace is ever exposed.
+
+**Testing**
+- Jest + React Testing Library cover: risk classification logic, API route behavior (including simulated Gemini failures), and dashboard component rendering.
 
 **Deployment**
 - Hosted on **Vercel**, taking advantage of serverless functions for the API layer and edge-optimized delivery for the frontend.
@@ -132,6 +148,7 @@ flowchart LR
 | Language | TypeScript |
 | Styling | CSS |
 | Generative AI | Google Gemini API (Vision + Text) |
+| Testing | Jest + React Testing Library |
 | Hosting / Deployment | Vercel |
 
 ---
@@ -142,8 +159,8 @@ Clone the repository and get it running locally in a few steps:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/zonewatch-ai.git
-cd zonewatch-ai
+git clone https://github.com/Afsheen06/Zonewatch-AI.git
+cd Zonewatch-AI
 
 # 2. Install dependencies
 npm install
@@ -166,6 +183,16 @@ npm run dev
 
 Then open [http://localhost:3000](http://localhost:3000) in your browser. 🎉
 
+**Run tests:**
+```bash
+npm test
+```
+
+**Production build:**
+```bash
+npm run build
+```
+
 ---
 
 ## 🚀 Usage
@@ -182,6 +209,17 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser. 🎉
 
 ---
 
+
+## 🧩 Assumptions Made
+
+- Zone images are uploaded manually or selected from bundled sample images rather than pulled from a live CCTV feed, since real stadium camera integration is outside the scope of this build.
+- Crowd density and risk figures are generated per-image (a single snapshot in time), not as continuous real-time video analysis.
+- Zone metadata (capacity, location, level) is pre-configured per venue rather than pulled from a live stadium management system.
+- Staff notifications and fan messages are generated and displayed in-app; actual dispatch to radios/SMS/PA systems would require integration with real stadium communication infrastructure.
+- The Gemini API is used as the sole vision + reasoning engine, in place of a custom-trained crowd-density model.
+
+---
+
 ## 🔮 Future Improvements
 
 - 📹 **Live CCTV Integration** — analyze real-time video feeds instead of static image uploads
@@ -192,12 +230,11 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser. 🎉
 
 ---
 
-## 👥 Team
+## 👥 Built By
 
 | Name | Role | GitHub |
 |---|---|---|
-| Afsheen M | Developer / Lead | (https://github.com/Afsheen06) |
-
+| Afsheen | Solo Developer / Builder | [@Afsheen06](https://github.com/Afsheen06) |
 
 ---
 
