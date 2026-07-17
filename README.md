@@ -209,6 +209,13 @@ npm run build
 
 ---
 
+## 📸 Screenshots
+
+| Home | Dashboard | Analysis |
+|---|---|---|
+| ![Home](images/home.png) | ![Dashboard](images/dashboard.png) | ![Analysis](images/analysis.png) |
+
+---
 
 ## 🧩 Assumptions Made
 
